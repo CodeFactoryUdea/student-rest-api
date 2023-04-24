@@ -24,6 +24,14 @@ public class StudentController {
         return ResponseEntity.ok(student1);
     }
 
+    @PutMapping
+    public ResponseEntity<Student> editStudent(@RequestBody Student student) {
+
+        var studentUpdated = studentService.updateStudent(student);
+
+        return ResponseEntity.ok(studentUpdated);
+    }
+
     @GetMapping("/find-all")
     public ResponseEntity<List<Student>> findAll() {
         var studentList = studentService.findAll();
