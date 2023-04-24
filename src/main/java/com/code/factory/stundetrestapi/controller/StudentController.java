@@ -3,10 +3,7 @@ package com.code.factory.stundetrestapi.controller;
 import com.code.factory.stundetrestapi.model.Student;
 import com.code.factory.stundetrestapi.service.StudentService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,6 +15,13 @@ public class StudentController {
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
+    }
+
+    @PostMapping
+    public ResponseEntity<Student> addStudent(@RequestBody Student student){
+
+        var student1 = studentService.createStudent(student);
+        return ResponseEntity.ok(student1);
     }
 
     @GetMapping("/find-all")
