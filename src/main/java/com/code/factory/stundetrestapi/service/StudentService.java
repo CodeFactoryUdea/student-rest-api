@@ -21,6 +21,13 @@ public class StudentService {
 
     private StudentRepository studentRepository;
 
+    public Student findById(Integer id) {
+        if (Objects.isNull(id)) {
+            throw new RuntimeException("ex.student.object_not_found");
+        }
+        return studentRepository.findById(id).orElseThrow(()-> new RuntimeException("ex.student.data_not_found"));
+    }
+
     public StudentService(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
@@ -53,6 +60,17 @@ public class StudentService {
         studentTransaction.setFullName(student.getFullName());
 
         return studentTransaction;
+    }
+
+    public void deleteStudent(Integer studentId) {
+        if(Objects.nonNull(studentId)) {
+            Optional<Student> studentOptional = studentRepository.findById(studentId);
+            if (!studentOptional.isPresent()) {
+                throw new RuntimeException("ex.student.data_not_found");
+            }
+        }
+
+        studentRepository.deleteById(studentId);
     }
 
 

@@ -2,6 +2,8 @@ package com.code.factory.stundetrestapi.controller;
 
 import com.code.factory.stundetrestapi.model.Student;
 import com.code.factory.stundetrestapi.service.StudentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +13,20 @@ import java.util.List;
 @RequestMapping("/student")
 public class StudentController {
 
+    private final Logger log = LoggerFactory.getLogger(StudentController.class);
+
+
     private StudentService studentService;
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Student> getStudent(@PathVariable Integer id){
+        log.info("Rest request buscar student por id: "+ id);
+        var student = studentService.findById(id);
+        return ResponseEntity.ok(student);
     }
 
     @PostMapping
@@ -31,6 +43,14 @@ public class StudentController {
 
         return ResponseEntity.ok(studentUpdated);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteStudent(@PathVariable Integer id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.accepted().body("student.deleted.ok");
+
+    }
+
 
     @GetMapping("/find-all")
     public ResponseEntity<List<Student>> findAll() {
