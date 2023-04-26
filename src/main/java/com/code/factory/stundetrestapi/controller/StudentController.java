@@ -1,12 +1,10 @@
 package com.code.factory.stundetrestapi.controller;
 
+import com.code.factory.stundetrestapi.dto.StudentWithSubjectsDto;
 import com.code.factory.stundetrestapi.model.Student;
 import com.code.factory.stundetrestapi.service.StudentService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,7 +21,6 @@ public class StudentController {
     @GetMapping("/find-all")
     public ResponseEntity<List<Student>> findAll() {
         var studentList = studentService.findAll();
-
         return ResponseEntity.ok(studentList);
     }
 
@@ -32,5 +29,37 @@ public class StudentController {
         var student = studentService.findByName(name);
 
         return ResponseEntity.ok(student);
+    }
+
+
+    @GetMapping("/get-student-with-subjects/{id}")
+    public ResponseEntity<StudentWithSubjectsDto> getStudentWithSubjects(@PathVariable Integer id) {
+        var studentSubjects = studentService.getStudentSubjects(id);
+
+        return ResponseEntity.ok(studentSubjects);
+    }
+
+    @PostMapping()
+    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+        var student1 = studentService.createStudent(student);
+
+        return ResponseEntity.ok(student1);
+
+    }
+
+
+    @PutMapping("/update-student")
+    public ResponseEntity<Student> updateStudent(@RequestBody Student student) {
+        var student1 = studentService.updateStudent(student);
+
+        return ResponseEntity.ok(student1);
+
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<String> findByName(@RequestParam() Integer id) {
+        studentService.deleteStudent(id);
+
+        return ResponseEntity.ok("student.deleted");
     }
 }

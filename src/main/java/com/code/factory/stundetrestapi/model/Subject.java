@@ -3,21 +3,21 @@ package com.code.factory.stundetrestapi.model;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
-@Table(name = "student")
+@Table(name = "subject")
 @Data
-public class Student {
+public class Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "document")
-    private String document;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "credits")
+    private String credits;
+
 }
