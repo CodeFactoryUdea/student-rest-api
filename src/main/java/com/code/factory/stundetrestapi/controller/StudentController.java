@@ -1,8 +1,13 @@
 package com.code.factory.stundetrestapi.controller;
 
+import com.code.factory.stundetrestapi.dto.StudentSubjectsDto;
 import com.code.factory.stundetrestapi.dto.StudentWithSubjectsDto;
 import com.code.factory.stundetrestapi.model.Student;
+import com.code.factory.stundetrestapi.model.StudentSubjects;
 import com.code.factory.stundetrestapi.service.StudentService;
+import com.code.factory.stundetrestapi.service.StudentSubjectService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +17,32 @@ import java.util.List;
 @RequestMapping("/student")
 public class StudentController {
 
+    private final Logger log = LoggerFactory.getLogger(StudentController.class);
+
     private StudentService studentService;
 
-    public StudentController(StudentService studentService) {
+    private StudentSubjectService studentSubjectService;
+
+
+    public StudentController(StudentService studentService, StudentSubjectService studentSubjectService) {
         this.studentService = studentService;
+        this.studentSubjectService = studentSubjectService;
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Student> getStudent(@PathVariable Integer id){
+        log.info("Rest request buscar student por id: "+ id);
+        var student = studentService.findById(id);
+        return ResponseEntity.ok(student);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteStudent(@PathVariable Integer id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.accepted().body("student.deleted.ok");
+
+    }
+
 
     @GetMapping("/find-all")
     public ResponseEntity<List<Student>> findAll() {
@@ -30,7 +56,6 @@ public class StudentController {
 
         return ResponseEntity.ok(student);
     }
-
 
     @GetMapping("/get-student-with-subjects/{id}")
     public ResponseEntity<StudentWithSubjectsDto> getStudentWithSubjects(@PathVariable Integer id) {
@@ -56,10 +81,12 @@ public class StudentController {
 
     }
 
-    @DeleteMapping()
-    public ResponseEntity<String> findByName(@RequestParam() Integer id) {
-        studentService.deleteStudent(id);
+    @PostMapping("/save-student-with-subjects")
+    public ResponseEntity<String> saveStudentWithSubjects(@RequestBody StudentSubjectsDto studentSubjectsDto){
 
-        return ResponseEntity.ok("student.deleted");
+        studentSubjectService.saveStudentWithSubjects(studentSubjectsDto);
+        return ResponseEntity.ok("student1");
     }
+
+
 }

@@ -5,19 +5,22 @@ import com.code.factory.stundetrestapi.dto.SubjectsWrapperDto;
 import com.code.factory.stundetrestapi.model.Student;
 import com.code.factory.stundetrestapi.model.StudentSubjects;
 import com.code.factory.stundetrestapi.repository.StudentRepository;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
 @Transactional
 public class StudentService {
 
+    private final Logger log = LoggerFactory.getLogger(StudentService.class);
     private StudentRepository studentRepository;
     private StudentSubjectsService studentSubjectsService;
 
@@ -25,6 +28,14 @@ public class StudentService {
         this.studentRepository = studentRepository;
         this.studentSubjectsService = studentSubjectsService;
     }
+
+    public Student findById(Integer id) {
+        if (Objects.isNull(id)) {
+            throw new RuntimeException("ex.student.object_not_found");
+        }
+        return studentRepository.findById(id).orElseThrow(()-> new RuntimeException("ex.student.data_not_found"));
+    }
+
 
     public StudentWithSubjectsDto getStudentSubjects(Integer idStudent) {
         List<StudentSubjects> studentWithSubjects = studentSubjectsService.findSubjectsByIdStudent(idStudent);
@@ -54,6 +65,48 @@ public class StudentService {
 
     }
 
+    public Student createStudent(Student student) {
+        if (Objects.nonNull(student.getId())) {
+            Optional<Student> studentOptional = studentRepository.findById(student.getId());
+            if (studentOptional.isPresent()) {
+               log.error("Datos duplicados");
+               throw new RuntimeException("Datos duplicados");
+            }
+        }
+
+        try {
+            return studentRepository.save(student);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("ex.student.data_constraint_violation");
+        }
+    }
+
+    public Student updateStudent(Student student) {
+        if (Objects.isNull(student.getId())){
+            throw new RuntimeException("ex.student.object_not_found");
+        }
+
+        var studentTransaction = studentRepository.findById(student.getId())
+                .orElseThrow(() -> new RuntimeException("ex.student.data_not_found") );
+
+        studentTransaction.setDocument(student.getDocument());
+        studentTransaction.setFullName(student.getFullName());
+
+        return studentTransaction;
+    }
+
+    public void deleteStudent(Integer studentId) {
+        if(Objects.nonNull(studentId)) {
+            Optional<Student> studentOptional = studentRepository.findById(studentId);
+            if (!studentOptional.isPresent()) {
+                throw new RuntimeException("ex.student.data_not_found");
+            }
+        }
+
+        studentRepository.deleteById(studentId);
+    }
+
+
     public List<Student> findAll() {
 
         var studentList = studentRepository.findAll();
@@ -67,33 +120,5 @@ public class StudentService {
         return student;
     }
 
-    public Student createStudent(Student student){
 
-        return studentRepository.save(student);
-
-    }
-
-
-    public Student updateStudent(Student student) {
-
-        Student studentTransaction = studentRepository.findById(student.getId())
-                .orElseThrow(()-> new RuntimeException("El estudiante no existe"));
-
-        studentTransaction.setDocument(student.getDocument());
-        studentTransaction.setFullName(student.getFullName());
-
-        return studentTransaction;
-
-    }
-
-    public void deleteStudent(Integer id) {
-        if(Objects.nonNull(id)) {
-            Optional<Student> studentOptional =  studentRepository.findById(id);
-            if (!studentOptional.isPresent()) {
-                throw new RuntimeException("El estudiante no existe");
-            }
-        }
-
-        studentRepository.deleteById(id);
-    }
 }

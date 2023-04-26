@@ -15,7 +15,8 @@ public class SubjectService {
         this.subjectRepository = subjectRepository;
     }
 
-
-
-
+    public List<Subject> findAll() {
+        var subjectList = subjectRepository.findAll();
+        return  subjectList;
+    }
 }
