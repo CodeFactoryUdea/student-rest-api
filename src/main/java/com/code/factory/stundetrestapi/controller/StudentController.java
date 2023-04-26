@@ -1,7 +1,10 @@
 package com.code.factory.stundetrestapi.controller;
 
+import com.code.factory.stundetrestapi.dto.StudentSubjectsDto;
 import com.code.factory.stundetrestapi.model.Student;
+import com.code.factory.stundetrestapi.model.StudentSubjects;
 import com.code.factory.stundetrestapi.service.StudentService;
+import com.code.factory.stundetrestapi.service.StudentSubjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +18,14 @@ public class StudentController {
 
     private final Logger log = LoggerFactory.getLogger(StudentController.class);
 
-
     private StudentService studentService;
 
-    public StudentController(StudentService studentService) {
+    private StudentSubjectService studentSubjectService;
+
+
+    public StudentController(StudentService studentService, StudentSubjectService studentSubjectService) {
         this.studentService = studentService;
+        this.studentSubjectService = studentSubjectService;
     }
 
     @GetMapping("{id}")
@@ -65,4 +71,13 @@ public class StudentController {
 
         return ResponseEntity.ok(student);
     }
+
+    @PostMapping("/save-student-with-subjects")
+    public ResponseEntity<List<StudentSubjects>> saveStudentWithSubjects(@RequestBody StudentSubjectsDto studentSubjectsDto){
+
+        var student1 = studentSubjectService.saveStudentWithSubjects(studentSubjectsDto);
+        return ResponseEntity.ok(student1);
+    }
+
+
 }
