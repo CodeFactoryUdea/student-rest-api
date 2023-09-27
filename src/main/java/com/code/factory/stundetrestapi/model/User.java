@@ -3,6 +3,7 @@ package com.code.factory.stundetrestapi.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity(name = "user")
 @Data
@@ -17,5 +18,8 @@ public class User {
 
     @Column(name="password")
     private String password;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "userFk")
+    private List<UserRole> userRoles;
 
 }
