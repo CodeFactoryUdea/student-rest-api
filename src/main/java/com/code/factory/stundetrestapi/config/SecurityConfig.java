@@ -1,5 +1,7 @@
 package com.code.factory.stundetrestapi.config;
 
+import com.code.factory.stundetrestapi.config.jwt.JwtAuthenticationEntryPoint;
+import com.code.factory.stundetrestapi.config.jwt.JwtAuthenticationFilter;
 import com.code.factory.stundetrestapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableGlobalMethodSecurity(
@@ -29,8 +32,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v2/api-docs", "/configuration/ui", "/swagger-resources/**", "/configuration/security", "/swagger-ui.html",
             "/webjars/**" };
 
-//    @Autowired
-//    private JwtAuthenticationEntryPoint unauthorizedHandler;
+    @Autowired
+    private JwtAuthenticationEntryPoint unauthorizedHandler;
 
     @Autowired
     private UserService userService;
@@ -44,10 +47,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-//    @Bean
-//    public JwtAuthenticationFilter jwtFiltroAutenticacion() {
-//        return new JwtAuthenticationFilter();
-//    }
+    @Bean
+    public JwtAuthenticationFilter jwtFiltroAutenticacion() {
+        return new JwtAuthenticationFilter();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -66,11 +69,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .anyRequest().authenticated()
                     .and()
 //                .addFilterBefore(corsFilter, ChannelProcessingFilter.class)
-//                .addFilterBefore(jwtFiltroAutenticacion(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFiltroAutenticacion(), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
-
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling();
-//                .authenticationEntryPoint(unauthorizedHandler);
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler);
         http.httpBasic().disable();
         http.formLogin().disable();
 
@@ -89,5 +91,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources/**",
                 "/configuration/security", "/swagger-ui.html", "/webjars/**");
     }
+
 
 }
