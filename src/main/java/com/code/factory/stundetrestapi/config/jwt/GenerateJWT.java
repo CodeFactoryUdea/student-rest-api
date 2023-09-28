@@ -23,7 +23,6 @@ public class GenerateJWT {
 	
 	public String generateToken(Authentication authentication) {
 		UserDetails user = (UserDetails) authentication.getPrincipal();
-		System.out.println("user details: "+user.getUsername());
 		Date ahora = new Date();
 		Date expiro = new Date(ahora.getTime() + Long.parseLong(jwtExpirationTime.trim()));
 		return Jwts.builder()

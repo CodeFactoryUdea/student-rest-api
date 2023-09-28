@@ -1,49 +1,51 @@
 package com.code.factory.stundetrestapi.service;
 
-import com.code.factory.stundetrestapi.config.jwt.GenerateJWT;
-import com.code.factory.stundetrestapi.dto.UserDto;
-import com.code.factory.stundetrestapi.dto.UserSingIn;
+import com.code.factory.stundetrestapi.dto.UserRolePermissionsDto;
 import com.code.factory.stundetrestapi.model.Rolecf;
 import com.code.factory.stundetrestapi.model.User;
 import com.code.factory.stundetrestapi.model.UserRole;
-import com.code.factory.stundetrestapi.repository.RoleRepository;
 import com.code.factory.stundetrestapi.repository.UserRepository;
 import com.code.factory.stundetrestapi.repository.UserRoleRepository;
 import org.hibernate.ObjectNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserService implements UserDetailsService {
     private static final String ROLE_PREFIX="ROLE_";
-
-
     private UserRepository userRepository;
-    private RoleRepository roleRepository;
     private UserRoleRepository userRoleRepository;
 
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+    public UserService(UserRepository userRepository,
                        UserRoleRepository userRoleRepository) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
+    }
+
+    public List<UserRolePermissionsDto> findUserRoleWithPermission(String username) {
+        if (Objects.isNull(username)) {
+            throw new ObjectNotFoundException(username, "User not found");
+        }
+        List<UserRolePermissionsDto> userRolePermissionsDtoList =
+                userRepository.findUserRoleWithPermission(username);
+        if (userRolePermissionsDtoList.isEmpty()){
+            throw new RuntimeException("exception.data_not_found.provider");
+        }
+
+        return userRolePermissionsDtoList;
     }
 
     public List<Rolecf> getUserRoles(Integer userId) {
@@ -87,37 +89,32 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public User registerNewUserAccount(UserDto userDto)  {
-
-
-        if(Objects.nonNull(userDto.getUserName())){
-            Optional<User> userOptional = userRepository.findByUsername(userDto.getUserName());
+    public User saveUser(User user){
+        if(Objects.nonNull(user.getId())){
+            Optional<User> userOptional = userRepository.findById(user.getId());
             if(userOptional.isPresent()){
                 throw new RuntimeException("exception.data_duplicated.user");
             }
 
         }
 
-        User user = new User();
-        user.setUsername(userDto.getUserName());
-        user.setPassword(new BCryptPasswordEncoder().encode(userDto.getPassword()));
-        User userCreated = userRepository.save(user);
+        if(Objects.nonNull(user.getUsername())){
+            Optional<User> userOptional = userRepository.findByUsername(user.getUsername());
+            if(userOptional.isPresent()){
+                throw new RuntimeException("exception.data_duplicated.user");
+            }
 
-
-        if(null== userDto.getRoleList() || userDto.getRoleList().isEmpty()) {
-            UserRole userRole = new UserRole();
-            Rolecf rolecf = roleRepository.findByRoleName("STUDENT");
-            userRole.setIdUserFk(userCreated.getId());
-            userRole.setIdRoleFk(rolecf.getId());
-            var userRoleCreated = userRoleRepository.save(userRole);
-            user.setUserRoles(Arrays.asList(userRoleCreated));
-        } else {
-            userRoleRepository.saveAll(userDto.getRoleList());
-            user.setUserRoles(userDto.getRoleList());
         }
 
-        return userCreated;
+        try {
+            return userRepository.save(user);
+        }catch (DataIntegrityViolationException e) {
+            Logger.getGlobal().log(Level.SEVERE, "No se puedo guardar el usuario", e);
+            throw new RuntimeException("exception.data_constraint_violation.user");
+        }
     }
+
+
 
 
 

@@ -5,12 +5,14 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.List;
 
-@Entity(name = "user")
+@Entity
+@Table(name="user")
 @Data
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
     @Column(name="username")
