@@ -42,8 +42,6 @@ public class StudentController {
         return ResponseEntity.accepted().body("student.deleted.ok");
 
     }
-
-
     @GetMapping("/find-all")
     public ResponseEntity<List<Student>> findAll() {
         var studentList = studentService.findAll();

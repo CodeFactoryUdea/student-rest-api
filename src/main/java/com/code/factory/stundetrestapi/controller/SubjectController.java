@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/subject")
-@PreAuthorize("hasAnyRole('STUDENT2', 'ADMIN')")
+@PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
 public class SubjectController {
 
     private SubjectService subjectService;

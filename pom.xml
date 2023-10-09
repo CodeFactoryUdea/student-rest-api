@@ -15,6 +15,11 @@
 	<description>stundet-rest-api es una api de prueba para crud de estudiantes y materias</description>
 	<properties>
 		<java.version>11</java.version>
+		<maven.plugin.surefire.version>3.0.0-M7</maven.plugin.surefire.version>
+
+		<sonar.host.url>http://52.86.153.234:9000</sonar.host.url>
+		<sonar.coverage.exclusions>*/Application., */config/., */exceptions/., */enums/., */dtos/.</sonar.coverage.exclusions>
+
 	</properties>
 	<dependencies>
 		<dependency>
@@ -70,6 +75,7 @@
 			<version>0.9.1</version>
 		</dependency>
 
+
 	</dependencies>
 
 	<build>
@@ -86,7 +92,24 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+
 		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>3.7.0.1746</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 </project>

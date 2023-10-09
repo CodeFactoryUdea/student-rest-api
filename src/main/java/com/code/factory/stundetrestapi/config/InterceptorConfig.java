@@ -12,9 +12,5 @@ public class InterceptorConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private RequestIncerceptor requestIncerceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(requestIncerceptor);
-        super.addInterceptors(registry);
-    }
+
 }
